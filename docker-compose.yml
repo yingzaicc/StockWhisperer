@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # 主应用（单体应用）
+  api:
+    build:
+      context: ./stock-whisperer
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://admin:password@postgres:5432/stockwhisperer
+      - REDIS_URL=redis://redis:6379
+      - NEWSCRAWLER_URL=http://newscrawler:8081
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - QWEN_API_KEY=${QWEN_API_KEY}
+    depends_on:
+      - postgres
+      - timescaledb
+      - mongodb
+      - redis
+      - newscrawler
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # NewsCrawler爬虫模块（独立容器）
+  newscrawler:
+    build:
+      context: ./newscrawler
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # 前端
+  web:
+    build:
+      context: ./stock-whisperer-web
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: stockwhisperer
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # TimescaleDB
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    environment:
+      POSTGRES_DB: timeseries
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - timescaledb_data:/home/postgres/pgdata/data
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # MongoDB
+  mongodb:
+    image: mongo:6
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - stockwhisperer-network
+
+volumes:
+  postgres_data:
+  timescaledb_data:
+  mongodb_data:
+  redis_data:
+
+networks:
+  stockwhisperer-network:
+    driver: bridge
