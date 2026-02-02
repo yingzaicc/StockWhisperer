@@ -31,7 +31,7 @@ stock-whisperer-project/
 ## 技术栈
 
 ### 后端
-- **语言**: Go 1.21+
+- **语言**: Go 1.25+
 - **框架**: Gin
 - **数据库**: PostgreSQL / TimescaleDB / MongoDB
 - **缓存**: Redis
@@ -48,7 +48,7 @@ stock-whisperer-project/
 
 ### 环境要求
 
-- Go 1.21+
+- Go 1.25+
 - Node.js 18+
 - Docker & Docker Compose（可选）
 - PostgreSQL 15+

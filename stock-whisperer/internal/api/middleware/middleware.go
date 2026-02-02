@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yingzaicc/stock-whisperer/pkg/logger"
+	"stock-whisperer/pkg/logger"
 )
 
 // Logger 日志中间件
@@ -17,14 +16,14 @@ func Logger() gin.HandlerFunc {
 
 		c.Next()
 
-		cost := time.SinceStart()
-		logger.Info("[GIN] %3d | %13v | %15s | %s | %s",
-			c.Writer.Status(),
-			cost,
-			c.ClientIP(),
-			c.Request.Method,
-			path,
-			query,
+		cost := time.Since(start)
+		logger.Info("[GIN]",
+			"status", c.Writer.Status(),
+			"cost", cost,
+			"ip", c.ClientIP(),
+			"method", c.Request.Method,
+			"path", path,
+			"query", query,
 		)
 	}
 }

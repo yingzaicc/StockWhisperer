@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yingzaicc/stock-whisperer/internal/api/handler"
-	"github.com/yingzaicc/stock-whisperer/internal/api/middleware"
-	"github.com/yingzaicc/stock-whisperer/internal/config"
+	"stock-whisperer/internal/api/handler"
+	"stock-whisperer/internal/api/middleware"
+	"stock-whisperer/internal/config"
 )
 
 // Register 注册路由

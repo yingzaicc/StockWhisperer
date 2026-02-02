@@ -11,9 +11,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yingzaicc/stock-whisperer/internal/config"
-	"github.com/yingzaicc/stock-whisperer/internal/api/router"
-	"github.com/yingzaicc/stock-whisperer/pkg/logger"
+	"stock-whisperer/internal/api/router"
+	"stock-whisperer/internal/config"
+	"stock-whisperer/internal/database"
+	"stock-whisperer/pkg/logger"
 )
 
 func main() {
@@ -25,6 +26,13 @@ func main() {
 
 	// 初始化日志
 	logger.Init(cfg.Log.Level)
+
+	// 初始化数据库（可选，生产环境需要）
+	// 注意：当前使用模拟数据，以下连接代码仅供参考
+	// if err := initDatabases(cfg); err != nil {
+	// 	logger.Warn("Database initialization failed: %v", err)
+	// 	logger.Warn("Continuing with mock data...")
+	// }
 
 	// 设置Gin模式
 	if cfg.Server.Mode == "release" {
@@ -48,9 +56,9 @@ func main() {
 
 	// 启动服务器
 	go func() {
-		logger.Info("Starting server on port %d", cfg.Server.Port)
+		logger.Info("Starting server on port", "port", cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("Failed to start server: %v", err)
+			logger.Fatal("Failed to start server", "error", err)
 		}
 	}()
 
@@ -65,8 +73,45 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Fatal("Server forced to shutdown: %v", err)
+		logger.Fatal("Server forced to shutdown", "error", err)
 	}
 
+	// 关闭数据库连接
+	// closeDatabases()
+
 	logger.Info("Server exited")
+}
+
+// initDatabases 初始化数据库连接
+func initDatabases(cfg *config.Config) error {
+	// 初始化MongoDB
+	if err := database.InitMongoDB(cfg); err != nil {
+		return fmt.Errorf("MongoDB init failed: %w", err)
+	}
+
+	// 初始化PostgreSQL
+	if err := database.InitPostgreSQL(cfg); err != nil {
+		return fmt.Errorf("PostgreSQL init failed: %w", err)
+	}
+
+	// 初始化TimescaleDB
+	if err := database.InitTimescaleDB(cfg); err != nil {
+		return fmt.Errorf("TimescaleDB init failed: %w", err)
+	}
+
+	// 初始化Redis
+	if err := database.InitRedis(cfg); err != nil {
+		return fmt.Errorf("Redis init failed: %w", err)
+	}
+
+	logger.Info("All databases initialized successfully")
+	return nil
+}
+
+// closeDatabases 关闭数据库连接
+func closeDatabases() {
+	database.CloseMongoDB()
+	database.ClosePostgreSQL()
+	database.CloseTimescaleDB()
+	database.CloseRedis()
 }

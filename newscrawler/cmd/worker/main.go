@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yingzaicc/newscrawler/internal/crawler/collector"
+	"newscrawler/internal/crawler/collector"
 )
 
 func main() {

@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/yingzaicc/newscrawler/internal/crawler/eastmoney"
-	"github.com/yingzaicc/newscrawler/internal/crawler/sina"
+	"newscrawler/internal/crawler/eastmoney"
+	"newscrawler/internal/crawler/sina"
 )
 
 // Run 启动爬虫收集器

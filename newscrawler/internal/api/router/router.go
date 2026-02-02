@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yingzaicc/newscrawler/internal/api/handler"
+	"newscrawler/internal/api/handler"
 )
 
 // Register 注册路由

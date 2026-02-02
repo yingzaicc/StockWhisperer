@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yingzaicc/newscrawler/internal/api/router"
+
+	"newscrawler/internal/api/router"
 )
 
 func main() {
